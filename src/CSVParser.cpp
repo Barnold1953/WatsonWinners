@@ -4,7 +4,7 @@ CSVParser::CSVParser(){
 	
 }
 
-int CSVParser::loadTrainingCSV(string filename, vector<vector<double>> &dataTable, vector<int> &truthTable){
+int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTable, vector<int> &truthTable){
 	string temp, strcat, line;
 	int i = 0;
 	double tempn;
@@ -13,7 +13,6 @@ int CSVParser::loadTrainingCSV(string filename, vector<vector<double>> &dataTabl
 	ifstream input;
 	truthTable.resize(0);
 	input.open(filename.c_str());
-
 	
 	while (!(input.eof())){
 		tempv.resize(0);
@@ -43,7 +42,7 @@ int CSVParser::loadTrainingCSV(string filename, vector<vector<double>> &dataTabl
 	return 1;
 }
 
-int CSVParser::loadEvaluationCSV(string filename, vector<vector<double>> &dataTable){
+int CSVParser::loadEvaluationCSV(string filename, vector<vector<double> > &dataTable){
 	string temp, strcat, line;
 	int i = 0;
 	double tempn;

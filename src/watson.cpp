@@ -17,7 +17,7 @@ int main (int argc, char **argv)
 	char *fileName = argv[1];
 	//these vectors store the data from the .csv files
 	vector < vector <double> > dataTable;
-	vector <bool> truths;
+	vector <int> truths;
 
 	if (isTrain){
 		if (csvParser.loadTrainingCSV(fileName, dataTable, truths)){
@@ -26,7 +26,7 @@ int main (int argc, char **argv)
 			//do training with the data!
 		}
 	}else{
-		if (csvParser.loadEvaluationCSV(fileName, dataTable, truths)){
+		if (csvParser.loadEvaluationCSV(fileName, dataTable)){
 			return 1; //error
 		}else{
 			//do stuff with the data!

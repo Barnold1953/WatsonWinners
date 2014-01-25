@@ -8,15 +8,16 @@ int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTab
 	string temp, strcat, line;
 	int i = 0;
 	double tempn;
-	vector <double> tempv;
 	istringstream ss;
 	ifstream input;
 	truthTable.resize(0);
 	input.open(filename.c_str());
+	int a;
+
+//	ofstream outfile("temp.txt"); //to check validity
 	
 	while (!(input.eof())){
-		tempv.resize(0);
-		dataTable.push_back(tempv);
+		dataTable.push_back(vector <double>());
 		getline(input, line);
 		int start = 0, end = 0;
 
@@ -29,15 +30,21 @@ int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTab
 			ss.str(temp);
 			ss >> tempn;
 
+	//		outfile << tempn << " ";
+
 			dataTable[i].push_back(tempn);
 		}
 		temp = line.substr(start, line.length() - start);
-		if (temp == "TRUE")
+		if (temp == "true"){
+	//		outfile << "true\n";
 			truthTable.push_back(1);
-		else
+		}else if (temp == "false"){
+	//		outfile << "false\n";
 			truthTable.push_back(0);
+		}
 		i++;
 	}
+//	outfile.close();
 	input.close();
 	return 1;
 }

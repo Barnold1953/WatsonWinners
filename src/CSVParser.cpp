@@ -1,83 +1,98 @@
 #include "CSVParser.h"
+#include <fstream>
+#include <stdio.h>
+#include <string.h>
+#include <string>
 
 CSVParser::CSVParser(){
 	
 }
 
 int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTable, vector<int> &truthTable){
-	string temp, strcat, line;
-	int i = 0;
-	double tempn;
-	istringstream ss;
-	ifstream input;
-	truthTable.resize(0);
-	input.open(filename.c_str());
-	int a;
+	ifstream inFile;
+	string lineBuffer;
+	double val = 0;
+	dataTable.reserve(1000); //reserve 1000 slots
+	truthTable.reserve(1000);
 
-//	ofstream outfile("temp.txt"); //to check validity
-	
-	while (!(input.eof())){
+	inFile.open(filename.c_str());
+	if (inFile.fail()){
+		perror(filename.c_str());
+		return 1;
+	}
+
+	while (getline(inFile, lineBuffer)){
 		dataTable.push_back(vector <double>());
-		getline(input, line);
-		int start = 0, end = 0;
+		dataTable.back().reserve(320); //reserve all 320 slots so we dont reallocate
+		
+		int prev = 0;
+	
+		for (int i = 0; i < lineBuffer.size(); i++){
 
-		while (line.find(",", start) != string::npos && line[start] != 'T' && line[start] != 'F'){
-			end = line.find(",", start);
-			temp = line.substr(start, end - start);
-			start = end + 1;
+			if ((int)lineBuffer[i] < 0){ //discard the UTF-8 Bom at the beginning of the file ( I think its bytes are always neg )
+				prev = i+1;
+				continue;
+			}
 
-			ss.clear();
-			ss.str(temp);
-			ss >> tempn;
+			if (lineBuffer[i] == ','){
+				lineBuffer[i] = '\0'; // so sscanf works
+				if (sscanf(&(lineBuffer[prev]), "%lf", &val) < 1){
+					cerr << "sscanf failed\n";
+				}
+				dataTable.back().push_back(val);
 
-	//		outfile << tempn << " ";
-
-			dataTable[i].push_back(tempn);
+				prev = i+1;
+			}
 		}
-		temp = line.substr(start, line.length() - start);
-		if (temp == "true"){
-	//		outfile << "true\n";
+
+		if (strcmp(&(lineBuffer[prev]), "true") == 0){
 			truthTable.push_back(1);
-		}else if (temp == "false"){
-	//		outfile << "false\n";
+		}else if (strcmp(&(lineBuffer[prev]), "false") == 0){
 			truthTable.push_back(0);
 		}
-		i++;
 	}
-//	outfile.close();
-	input.close();
-	return 1;
+
+	inFile.close();
+	return 0;
 }
 
 int CSVParser::loadEvaluationCSV(string filename, vector<vector<double> > &dataTable){
-	string temp, strcat, line;
-	int i = 0;
-	double tempn;
-	vector <double> tempv;
-	istringstream ss;
-
-	ifstream input;
-	input.open(filename.c_str());
-
-	while (!(input.eof())){
-		tempv.resize(0);
-		dataTable.push_back(tempv);
-		int start = 0, end = 0;
-		getline(input, line);
-		while (line.find(",", start) != string::npos){
-			end = line.find(",", start);
-			temp = line.substr(start, end - start);
-			start = end + 1;
-
-			ss.clear();
-			ss.str(temp);
-			ss >> tempn;
-
-			dataTable[i].push_back(tempn);
-		}
-		cout << i << endl;
-		i++;
+		ifstream inFile;
+	string lineBuffer;
+	double val = 0;
+	dataTable.reserve(1000); //reserve 1000 slots
+	
+	inFile.open(filename.c_str());
+	if (inFile.fail()){
+		perror(filename.c_str());
+		return 1;
 	}
-	input.close();
-	return 1;
+
+	while (getline(inFile, lineBuffer)){
+		dataTable.push_back(vector <double>());
+		dataTable.back().reserve(320); //reserve all 320 slots so we dont reallocate
+		
+		int prev = 0;
+	
+		for (int i = 0; i < lineBuffer.size(); i++){
+
+			if ((int)lineBuffer[i] < 0){ //discard the UTF-8 Bom at the beginning of the file ( I think its bytes are always neg )
+				prev = i+1;
+				continue;
+			}
+
+			if (lineBuffer[i] == ','){
+				lineBuffer[i] = '\0'; // so sscanf works
+				if (sscanf(&(lineBuffer[prev]), "%lf", &val) < 1){
+					cerr << "sscanf failed\n";
+				}
+				dataTable.back().push_back(val);
+
+				prev = i+1;
+			}
+		}
+	}
+
+	inFile.close();
+	return 0;
 }

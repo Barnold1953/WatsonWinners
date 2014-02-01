@@ -8,7 +8,6 @@ using namespace std;
 class Neuron{
 	public:
 		Neuron(vector <double> &weights);
-
 		vector <double> weights;
 		double sigma;
 };

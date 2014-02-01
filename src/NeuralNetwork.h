@@ -8,6 +8,7 @@ public:
 	void initializeNetwork(string fileName);
 	double feedForward(vector <double> &data, bool truth);
 	void trainNet(vector <vector <double> > &data, vector <bool> &truths);
+	void backProp(vector <bool> &truths);
 private:
 	int neuronsPerLayer;
 	int layers;

@@ -1,4 +1,6 @@
+#include "Neuron.h"
 #include <iostream>
+#include <vector>
 using namespace std;
 
 class NeuralNetwork{

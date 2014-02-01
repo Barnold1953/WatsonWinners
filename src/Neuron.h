@@ -7,11 +7,10 @@ using namespace std;
 
 class Neuron{
 	public:
-		Neuron(vector <double> weights);
-		bool threshold();
-	private:
+		Neuron(vector <double> &weights);
+
 		vector <double> weights;
-		double sigma, h;
+		double sigma;
 };
 
 #endif

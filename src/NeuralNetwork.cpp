@@ -1,3 +1,4 @@
+#include "NeuralNetwork.h"
 #include <stdio.h>
 #include <math.h> //for exp?
 #include <ctime>

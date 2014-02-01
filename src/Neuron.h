@@ -1,10 +1,12 @@
 #ifndef Neuron_h
 #define Neuron_h
 
-#include <vector>
+#include<vector>
+
+using namespace std;
 
 struct Neuron{
-	vector <double> weights;
+	vector<double> weights;
 	double sigma;
 };
 

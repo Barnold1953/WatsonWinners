@@ -99,6 +99,8 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	inFile.close();
 }
 
+
+
 void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &truths)
 {
 	double error;

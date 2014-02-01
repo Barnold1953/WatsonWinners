@@ -3,13 +3,9 @@
 
 #include <vector>
 
-using namespace std;
-
-class Neuron{
-	public:
-		Neuron(vector <double> &weights);
-		vector <double> weights;
-		double sigma;
+struct Neuron{
+	vector <double> weights;
+	double sigma;
 };
 
 #endif

@@ -101,8 +101,11 @@ void NeuralNetwork::initializeNetwork(string filename) {
 
 void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &truths)
 {
+    ofstream out("testdump.txt");
 	double error;
 	for (int i = 0; i < data.size(); i++){
 		error = feedForward(data[i], truths[i]);
+        testdump << i << " " << error << "\n";
 	}
+    testdump.close();
 }

@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "IO.h"
 #include <fstream>
 #include <stdio.h>
@@ -8,7 +9,7 @@ CSVParser::CSVParser(){
 	
 }
 
-int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTable, vector<int> &truthTable){
+int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTable, vector<bool> &truthTable){
 	ifstream inFile;
 	string lineBuffer;
 	double val = 0;

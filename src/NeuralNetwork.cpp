@@ -1,3 +1,4 @@
+#include "NeuralNetwork.h"
 #include <stdio.h>
 #include <math.h> //for exp?
 #include <ctime>
@@ -97,6 +98,25 @@ void NeuralNetwork::initializeNetwork(string filename) {
 		foundEq=false;
 	}
 	inFile.close();
+}
+
+void NeuralNetwork::backProp(vector <bool> &truths){
+/*
+	for (int i = network.size() - 1; i >= 0; i--){
+		for (int j = network[i].size() - 1; j >= 0; j--){
+			if(i == network.size() - 1){
+				for (int k = network[i][j].weights.size(); k >= 0; k--){
+					network[i][j].weights[k] += deltaWeight;
+				}
+			}
+			else{
+				for (int k = network[i][j].weights.size(); k >= 0; k--){
+					network[i][j].weights[k] = 
+				}
+			}
+		}
+	}
+	*/
 }
 
 void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &truths)

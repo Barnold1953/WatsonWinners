@@ -16,7 +16,7 @@
 //     ->*->*->*->*
 //
 double e = 2.7182818284;
-double n = .003;
+double N = .003;
 
 inline double Sigmoid(double x){
     return 1.0/(1.0 + exp(-x));
@@ -37,7 +37,7 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
     //First layer should be 1:1 for number of inputs.
     if (data.size() != network[0].size()){
         printf("ERROR: There are %d inputs but %d neurons in the first layer\n", data.size(), network[0].size());
-        exit(1);
+		exit(1);
     }
     
 	for (int i = 0; i < network[0].size(); i++){ 
@@ -77,7 +77,6 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	inFile.open(filename.c_str());
 	if (inFile.fail()){
 		perror(filename.c_str());
-		exit(1);
 	}
 
 	string variableName;
@@ -136,43 +135,33 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	inFile.close();
 }
 
-double NeuralNetwork::sigDir(double x){
+double sigDir(double x){
     return x * (1 - x);
     //return ((1/(1+exp(-x)))((-1*exp(-x))/(1+exp(-x))));
 }
 
-void NeuralNetwork::backPropH(double error, Neuron *n, int layer){
-    double deltaW, sdSum = 0;
-    double sigD = sigDir(n->sigma);
-    
-    for(int i = 0; i < network[layer].size(); i++){
-    }
-  /*
-    for (int i = network.size() - 1; i >= 0; i--){
-        for (int j = network[i].size() - 1; j >= 0; j--){
-            if(i == network.size() - 1){
-                double sigD = sigDir(network[i][j].sigma);
-                for (int k = network[i][j].weights.size(); k >= 0; k--){
-                    network[i][j].weights[k] += 2 * deltaWeight * ();
-                }
-            }
-            else{
-                for (int k = network[i][j].weights.size(); k >= 0; k--){
-                    network[i][j].weights[k] = 
-                }
-            }
-        }
-    }
-    */
-}
-
 void NeuralNetwork::backProp(double error){
-    Neuron *n = network[network.size() - 1][0];
+    Neuron *n = &network[network.size() - 1][0];
+    
     for (int i = 0; i < n->weights.size(); i++){
         double sigD = sigDir(n->sigma);
-        n->weights[i] += n * 2 * sigDir * error * n->weights[i].sigma;
-        backPropH(2 * sigD * error, network[network.size() - 2][i], network.size() - 2);
-    }  
+        n->delta = 2 * sigD * error;
+        n->weights[i] += N * 2 * sigD * error * network[network.size() - 2][i].sigma;
+    } 
+    for (int i = network.size() - 2; i > 0; i--){
+		for (int j = 0; j < network[i].size(); j++){
+			double sigD = sigDir(network[i][j].sigma);
+            double sum = 0;
+            for(int k = 0; k < network[i+1].size(); k++){
+                sum += network[i+1][k].delta * network[i+1][k].weights[j];
+            }
+			network[i][j].delta = sigD * sum;
+			for (int l = 0; l < network[i][j].weights.size(); l++){
+				network[i][j].weights[l] += N * network[i][j].delta * network[i - 1][l].sigma;
+				//printf("Node[%d][%d] weight adjusted by %lf\n", i, j, N * network[i][j].delta * network[i - 1][l].sigma);
+			}
+		}
+	}
 }
 
 void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &truths)
@@ -181,7 +170,9 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	double error;
 	for (int i = 0; i < data.size(); i++){
 		error = feedForward(data[i], truths[i]);
+        backProp(error);
         testdump << i << " " << error << "\n";
+		cout << i << " " << error << "\n";
 	}
     testdump.close();
 }

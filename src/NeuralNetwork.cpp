@@ -136,6 +136,36 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	inFile.close();
 }
 
+void NeuralNetwork::initializeNetwork(vector <int> &neuronsPerLayer, int RandomSeed, double TrainingVal, double IRB)
+{
+	layers = neuronsPerLayer.size();
+	randomSeed = RandomSeed;
+	trainingVal = TrainingVal;
+	initialRandomBias = IRB;
+
+	network.resize(layers, vector <Neuron>());
+	for (int i = 0; i < layers; i++){
+		network[i].resize(neuronsPerLayer[i]);
+	}
+
+	//set up weights for inputs
+	srand(randomSeed);
+
+	for (int i = 1; i < network[0].size(); i++){ //first layer doesnt need weights
+		network[0][i].weights.push_back(((rand()%INT_MAX)/(float)INT_MAX) * initialRandomBias);
+	}
+
+	//set up weights for the rest of the layers
+	for (int i = 1; i < network.size(); i++){
+		for (int j = 0; j < network[i].size(); j++){
+			network[i][j].weights.resize(network[i-1].size());
+			for (int k = 0; k < network[i-1].size(); k++){ //loop through previous layer to make weights
+				network[i][j].weights[k] = ((rand()%INT_MAX)/(float)INT_MAX) * initialRandomBias;
+			}
+		}
+	}
+}
+
 double NeuralNetwork::sigDir(double x){
     return ((1/(1+exp(-x)))((-1*exp(-x))/(1+exp(-x))));
 }

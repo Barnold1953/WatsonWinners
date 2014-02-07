@@ -5,12 +5,14 @@ using namespace std;
 
 class NeuralNetwork{
 public:
+	//create network from file
 	void initializeNetwork(string fileName);
+	//create network from inputs (faster)
+	void initializeNetwork(vector <int> &neuronsPerLayer, int RandomSeed, double TrainingVal, double IRB);
 	double feedForward(vector <double> &data, bool truth);
 	void trainNet(vector <vector <double> > &data, vector <bool> &truths);
 	void backProp(vector <bool> &truths);
 private:
-	int neuronsPerLayer;
 	int layers;
 	int randomSeed;
 	double trainingVal;

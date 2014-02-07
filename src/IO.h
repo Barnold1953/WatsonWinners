@@ -4,8 +4,23 @@
 #include <iostream>
 #include <vector>
 
+struct SessionInfo
+{
+	double randomSeed;
+	int epoch;
+	int maxNetworks;
+	bool isPermute;
+	int minLayers;
+	int maxLayers;
+	int minNeurons;
+	int maxNeurons;
+	int numInputs;
+};
 
 using namespace std;
+
+//sets up a training session struct from file
+SessionInfo LoadSession(const char *fileName);
 
 class CSVParser{
 	public:

@@ -61,9 +61,10 @@ void MultithreadedTrainer(char **argv)
 	CSVParser csvParser;
     char *dataFileName = argv[1];
 
+	SessionInfo sessionInfo = LoadSession(argv[2]);
 
 	Threadpool::Begin(4); //TODO: Determine how many hardware threads the machine has
 
-
+	Threadpool::End();
 	
 }

@@ -11,7 +11,7 @@ public:
 	void initializeNetwork(vector <int> &neuronsPerLayer, int RandomSeed, double TrainingVal, double IRB);
 	double feedForward(vector <double> &data, bool truth);
 	void trainNet(vector <vector <double> > &data, vector <bool> &truths);
-	void backProp(vector <bool> &truths);
+	void backProp(double error);
 private:
 	int layers;
 	int randomSeed;

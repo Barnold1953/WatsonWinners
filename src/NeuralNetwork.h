@@ -13,6 +13,7 @@ private:
 	int neuronsPerLayer;
 	int layers;
 	int randomSeed;
+	double trainingVal;
 	double initialRandomBias;
 	vector < vector <Neuron> > network; //treat as a 2D array
 };

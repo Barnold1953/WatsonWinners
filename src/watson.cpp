@@ -48,7 +48,7 @@ void SingleExecution(char **argv)
 		}
 	}else{
 		if (csvParser.loadEvaluationCSV(dataFileName, dataTable)){
-			return 1; //error
+			return; //error
 		}else{
 			//do stuff with the data!
 		}

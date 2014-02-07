@@ -2,6 +2,20 @@
 #include "NeuralNetwork.h"
 #include <cstdlib>
 
+condition_variable Threadpool::cond;
+mutex Threadpool::taskQueueLock;
+queue <NetworkTask *> Threadpool::taskQueue;
+int Threadpool::nThreads;
+
+//threads
+vector <thread *> Threadpool::workers;
+vector <WorkerData> Threadpool::workerDatas;
+
+	/****   training data  (same for every network execution)  ****/
+vector < vector <double> > Threadpool::dataTable;
+vector <bool> Threadpool::truths;
+
+
 void WorkerThread(WorkerData *workerData)
 {
 	//create and aquire lock. Need unique_lock wrapper so it can use a condition_variable

@@ -135,7 +135,8 @@ void NeuralNetwork::initializeNetwork(string filename) {
 }
 
 double NeuralNetwork::sigDir(double x){
-    return ((1/(1+exp(-x)))((-1*exp(-x))/(1+exp(-x))));
+    return x * (1 - x);
+    //return ((1/(1+exp(-x)))((-1*exp(-x))/(1+exp(-x))));
 }
 
 void NeuralNetwork::backPropH(double error, Neuron *n, int layer){
@@ -169,7 +170,7 @@ void NeuralNetwork::backProp(double error){
         double sigD = sigDir(n->sigma);
         n->weights[i] += n * 2 * sigDir * error * n->weights[i].sigma;
         backPropH(2 * sigD * error, network[network.size() - 2][i], network.size() - 2);
-    }
+    }  
 }
 
 void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &truths)

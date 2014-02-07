@@ -41,13 +41,13 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
     }
     
 	for (int i = 0; i < network[0].size(); i++){ 
-		network[0][i].sigma = network[0][i].weights[0] * data[i];
+		network[0][i].sigma = data[i];
 	}
 
 	for (int i = 0; i < network.size()-1; i++){ //loop through columns except for the final output
 		for (int j = 0; j < network[i].size(); j++){ //loop through neurons in column
 			n1 = &(network[i][j]);
-			n1->sigma = Sigmoid(n1->sigma); //sigmoidify our sigma
+			if (i != 0) n1->sigma = Sigmoid(n1->sigma); //sigmoidify our sigma if were not on the first layer
 			for (int k = 0; k < network[i+1].size(); k++){ //set sigmas for next layer
 				n2 = &(network[i+1][k]);
 				n2->sigma += n2->weights[j] * n1->sigma;
@@ -110,6 +110,8 @@ void NeuralNetwork::initializeNetwork(string filename) {
 			if (randomSeed == -1) randomSeed = time(NULL);
 		} else if(variableName == "initialRandomBias") {
 			initialRandomBias = atof(variableValue.c_str());
+		} else if(variableName == "trainingVal"){
+			trainingVal = atof(variableValue.c_str());
 		}
 		foundEq=false;
 	}

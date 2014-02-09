@@ -17,9 +17,9 @@ int main (int argc, char **argv)
 		exit(1);
 	}
 
-	if (argc == 2){
+	if (argc == 4){
 		SingleExecution(argv);
-	}else if (argc == 4){
+	}else if (argc == 3){
 		MultithreadedTrainer(argv);
 	}
 

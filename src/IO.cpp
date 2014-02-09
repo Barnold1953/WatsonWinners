@@ -61,7 +61,7 @@ SessionInfo LoadSession(const char *fileName)
 	}
 
 	inFile.close();
-	return rv;
+	return rv = SessionInfo();
 }
 
 CSVParser::CSVParser(){

@@ -216,7 +216,7 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 
 		for (int i = 0; i < data.size(); i++){
 			error = feedForward(data[i], truths[i]);
-		//	backProp(error);
+			backProp(error);
 
 			avgError += abs(error);
 			if (abs(error) < 0.5){

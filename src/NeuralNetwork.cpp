@@ -15,10 +15,15 @@
 //  v  ->*->*->*->*
 //     ->*->*->*->*
 //
+
 double e = 2.7182818284;
 
 inline double Sigmoid(double x){
     return 1.0/(1.0 + exp(-x));
+}
+
+inline double sigDir(double x){
+	return Sigmoid(x)*(1.0 - Sigmoid(x));
 }
 
 double NeuralNetwork::feedForward(vector <double> &data, bool truth)
@@ -39,6 +44,7 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 		exit(1);
     }
     
+	//TODO: Get rid of the first layer altogether. We can just access the data table instead!
 	for (int i = 0; i < network[0].size(); i++){ 
 		network[0][i].sigma = data[i];
 	}
@@ -116,7 +122,7 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	srand(randomSeed);
 
 	for (int i = 0; i < network[0].size(); i++){
-		network[0][i].weights.push_back(((rand()%INT_MAX)/(float)INT_MAX) * initialRandomBias);
+		network[0][i].weights.push_back(0.0); //first layer doesnt even need weights
 	}
 
 	//set up weights for the rest of the layers
@@ -124,7 +130,7 @@ void NeuralNetwork::initializeNetwork(string filename) {
 		for (int j = 0; j < network[i].size(); j++){
 			network[i][j].weights.resize(network[i-1].size());
 			for (int k = 0; k < network[i-1].size(); k++){ //loop through previous layer to make weights
-				network[i][j].weights[k] = ((rand()%INT_MAX)/(float)INT_MAX) * initialRandomBias;
+				network[i][j].weights[k] = ((rand()%RAND_MAX)/(float)RAND_MAX) * initialRandomBias * 2.0 - initialRandomBias;
 			}
 		}
 	}
@@ -162,10 +168,6 @@ void NeuralNetwork::initializeNetwork(vector <int> &neuronsPerLayer, int RandomS
 	}
 }
 
-double sigDir(double x){
-	return Sigmoid(x)*(1.0 - Sigmoid(x));
-}
-
 void NeuralNetwork::backProp(double error){
     Neuron *n = &(network[network.size() - 1][0]);
     
@@ -196,15 +198,41 @@ void NeuralNetwork::backProp(double error){
 
 void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &truths)
 {
+	//*** metrics ***
+	double avgError;
+	int numCorrect;
+	int falseCorrect; //number of FALSE values that turned up correctly
+	int trueCorrect;
+
+	//***   end   ***
     ofstream testdump("testdump.txt");
 	double error;
+	cout << "Random Seed: " << randomSeed << endl;
 	for (int q = 0; q < 15; q++){
+		avgError = 0.0;
+		numCorrect = 0;
+		falseCorrect = 0;
+		trueCorrect = 0;
+
 		for (int i = 0; i < data.size(); i++){
 			error = feedForward(data[i], truths[i]);
-			backProp(error);
-			testdump << i << " " << error << "\n";
-			cout << i << " " << error << "\n";
+		//	backProp(error);
+
+			avgError += abs(error);
+			if (abs(error) < 0.5){
+				numCorrect++;
+				if (truths[i]){
+					trueCorrect++;
+				}else{
+					falseCorrect++;
+				}
+			}
+			//testdump << i << " " << error << "\n";
+			//cout << i << " " << error << "\n";
 		}
+		avgError /= data.size();
+
+		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, data.size(), falseCorrect, trueCorrect);
 	}
     testdump.close();
 }

@@ -164,18 +164,20 @@ void NeuralNetwork::initializeNetwork(vector <int> &neuronsPerLayer, int RandomS
 }
 
 double sigDir(double x){
-    return x * (1 - x);
-    //return ((1/(1+exp(-x)))((-1*exp(-x))/(1+exp(-x))));
+	return Sigmoid(x)*(1.0 - Sigmoid(x));
 }
 
 void NeuralNetwork::backProp(double error){
     Neuron *n = &network[network.size() - 1][0];
     
+	//last neuron
     for (int i = 0; i < n->weights.size(); i++){
         double sigD = sigDir(n->sigma);
         n->delta = 2 * sigD * error;
         n->weights[i] += N * 2 * sigD * error * network[network.size() - 2][i].sigma;
     } 
+
+
     for (int i = network.size() - 2; i > 0; i--){
 		for (int j = 0; j < network[i].size(); j++){
 			double sigD = sigDir(network[i][j].sigma);

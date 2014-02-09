@@ -12,7 +12,7 @@ void MultithreadedTrainer(char **argv);
 
 int main (int argc, char **argv)
 {
-	if (argc != 2 && argc != 4){
+	if (argc != 3 && argc != 4){
 		cerr << "ERROR! Usage:\n   Single Execution: watson networkFile dataFile isTrainer(0/1)\n   Multithreaded Trainer: watson dataFile sessionFile\n";
 		exit(1);
 	}

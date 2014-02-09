@@ -16,7 +16,6 @@
 //     ->*->*->*->*
 //
 double e = 2.7182818284;
-double N = .003;
 
 inline double Sigmoid(double x){
     return 1.0/(1.0 + exp(-x));
@@ -62,9 +61,9 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 	double error;
 	output = network[network.size()-1][0].sigma;
 	if (truth){
-		error = output - 1.0;
+		error = 1.0 - output;
 	}else{
-		error = output;
+		error = 0.0 - output;
 	}
 	
 	return error;
@@ -168,26 +167,27 @@ double sigDir(double x){
 }
 
 void NeuralNetwork::backProp(double error){
-    Neuron *n = &network[network.size() - 1][0];
+    Neuron *n = &(network[network.size() - 1][0]);
     
 	//last neuron
     for (int i = 0; i < n->weights.size(); i++){
         double sigD = sigDir(n->sigma);
-        n->delta = 2 * sigD * error;
-        n->weights[i] += N * 2 * sigD * error * network[network.size() - 2][i].sigma;
+        n->delta = 2.0 * sigD * error;
+        n->weights[i] += trainingVal * n->delta * network[network.size() - 2][i].sigma;
     } 
 
-
+	//TODO:? delta can be stored in sigma to save 8 bytes on our neuron struct
     for (int i = network.size() - 2; i > 0; i--){
 		for (int j = 0; j < network[i].size(); j++){
-			double sigD = sigDir(network[i][j].sigma);
+			n = &(network[i][j]);
+			double sigD = sigDir(n->sigma);
             double sum = 0;
             for(int k = 0; k < network[i+1].size(); k++){
                 sum += network[i+1][k].delta * network[i+1][k].weights[j];
             }
-			network[i][j].delta = sigD * sum;
-			for (int l = 0; l < network[i][j].weights.size(); l++){
-				network[i][j].weights[l] += N * network[i][j].delta * network[i - 1][l].sigma;
+			n->delta = sigD * sum;
+			for (int l = 0; l < n->weights.size(); l++){
+				n->weights[l] += trainingVal * n->delta * network[i - 1][l].sigma;
 				//printf("Node[%d][%d] weight adjusted by %lf\n", i, j, N * network[i][j].delta * network[i - 1][l].sigma);
 			}
 		}
@@ -198,11 +198,13 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 {
     ofstream testdump("testdump.txt");
 	double error;
-	for (int i = 0; i < data.size(); i++){
-		error = feedForward(data[i], truths[i]);
-        backProp(error);
-        testdump << i << " " << error << "\n";
-		cout << i << " " << error << "\n";
+	for (int q = 0; q < 15; q++){
+		for (int i = 0; i < data.size(); i++){
+			error = feedForward(data[i], truths[i]);
+			backProp(error);
+			testdump << i << " " << error << "\n";
+			cout << i << " " << error << "\n";
+		}
 	}
     testdump.close();
 }

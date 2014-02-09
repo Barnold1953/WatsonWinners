@@ -10,7 +10,7 @@ SessionInfo LoadSession(const char *fileName)
 	ifstream inFile;
 	string lineBuffer;
 	double val = 0;
-	SessionInfo rv;
+	SessionInfo rv = SessionInfo();
 
 	inFile.open(fileName);
 	if (inFile.fail()){

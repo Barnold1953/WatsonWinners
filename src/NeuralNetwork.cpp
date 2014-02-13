@@ -212,50 +212,48 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	vector< vector<double> > tempError;
 	vector<bool> newTruths;
 	vector<bool> tempTruths;
-	for(int j=0; j<50; j++) {
-		for (int q = 0; q < 15; q++){
-			newError = tempError;
-			newTruths = tempTruths;
-			tempError.clear();
-			vector< vector<double> > *currError;
-			vector<bool> *currTruths;
+	for (int q = 0; q < 15; q++){
+		newError = tempError;
+		newTruths = tempTruths;
+		tempError.clear();
+		vector< vector<double> > *currError;
+		vector<bool> *currTruths;
 
-			if(q == 0 || q==14) currError = &data;
-			else currError = &newError;
-			if(q == 0 || q==14) currTruths = &truths;
-			else currTruths = &newTruths;
+		if(q == 0 || q==14) currError = &data;
+		else currError = &newError;
+		if(q == 0 || q==14) currTruths = &truths;
+		else currTruths = &newTruths;
 
-			avgError = 0.0;
-			numCorrect = 0;
-			falseCorrect = 0;
-			trueCorrect = 0;
-			for (int i = 0; i < currError->size(); i++){
-				error = feedForward((*currError)[i], (*currTruths)[i]);
-				backProp(error);
+		avgError = 0.0;
+		numCorrect = 0;
+		falseCorrect = 0;
+		trueCorrect = 0;
+		for (int i = 0; i < currError->size(); i++){
+			error = feedForward((*currError)[i], (*currTruths)[i]);
+			backProp(error);
 
-				avgError += abs(error);
-				if (abs(error) < 0.5){
-					if(rand()%10 == 0) {
-						tempError.push_back((*currError)[i]);
-						tempTruths.push_back((*currTruths)[i]);
-					}
-					numCorrect++;
-					if ((*currTruths)[i]){
-						trueCorrect++;
-					} else{
-						falseCorrect++;
-					}
-				} else {
+			avgError += abs(error);
+			if (abs(error) < 0.5){
+				if(rand()%10 == 0) {
 					tempError.push_back((*currError)[i]);
 					tempTruths.push_back((*currTruths)[i]);
 				}
-				//testdump << i << " " << error << "\n";
-				//cout << i << " " << error << "\n";
+				numCorrect++;
+				if ((*currTruths)[i]){
+					trueCorrect++;
+				} else{
+					falseCorrect++;
+				}
+			} else {
+				tempError.push_back((*currError)[i]);
+				tempTruths.push_back((*currTruths)[i]);
 			}
-			avgError /= (*currError).size();
-
-			printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, (*currError).size(), falseCorrect, trueCorrect);
+			//testdump << i << " " << error << "\n";
+			//cout << i << " " << error << "\n";
 		}
+		avgError /= (*currError).size();
+
+		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, (*currError).size(), falseCorrect, trueCorrect);
 	}
 	testdump.close();
 }

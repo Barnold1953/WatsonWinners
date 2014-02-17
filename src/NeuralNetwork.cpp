@@ -82,6 +82,7 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	inFile.open(filename.c_str());
 	if (inFile.fail()){
 		perror(filename.c_str());
+		exit(1);
 	}
 
 	string variableName;
@@ -208,19 +209,19 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	ofstream testdump("testdump.txt");
 	double error;
 	cout << "Random Seed: " << randomSeed << endl;
-	vector< vector<double> > newError;
-	vector< vector<double> > tempError;
+	vector< vector<double> > newData;
+	vector< vector<double> > tempData;
 	vector<bool> newTruths;
 	vector<bool> tempTruths;
 	for (int q = 0; q < 15; q++){
-		newError = tempError;
+		newData = tempData;
 		newTruths = tempTruths;
-		tempError.clear();
-		vector< vector<double> > *currError;
+		tempData.clear();
+		vector< vector<double> > *currData;
 		vector<bool> *currTruths;
 
-		if(q == 0 || q==14) currError = &data;
-		else currError = &newError;
+		if (q == 0 || q == 14) currData = &data;
+		else currData = &newData;
 		if(q == 0 || q==14) currTruths = &truths;
 		else currTruths = &newTruths;
 
@@ -228,14 +229,14 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 		numCorrect = 0;
 		falseCorrect = 0;
 		trueCorrect = 0;
-		for (int i = 0; i < currError->size(); i++){
-			error = feedForward((*currError)[i], (*currTruths)[i]);
+		for (int i = 0; i < currData->size(); i++){
+			error = feedForward((*currData)[i], (*currTruths)[i]);
 			backProp(error);
 
 			avgError += abs(error);
 			if (abs(error) < 0.5){
 				if(rand()%10 == 0) {
-					tempError.push_back((*currError)[i]);
+					tempData.push_back((*currData)[i]);
 					tempTruths.push_back((*currTruths)[i]);
 				}
 				numCorrect++;
@@ -245,15 +246,15 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 					falseCorrect++;
 				}
 			} else {
-				tempError.push_back((*currError)[i]);
+				tempData.push_back((*currData)[i]);
 				tempTruths.push_back((*currTruths)[i]);
 			}
 			//testdump << i << " " << error << "\n";
 			//cout << i << " " << error << "\n";
 		}
-		avgError /= (*currError).size();
+		avgError /= (*currData).size();
 
-		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, (*currError).size(), falseCorrect, trueCorrect);
+		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, (*currData).size(), falseCorrect, trueCorrect);
 	}
 	testdump.close();
 }

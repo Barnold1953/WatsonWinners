@@ -52,7 +52,7 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 	for (int i = 0; i < network.size()-1; i++){ //loop through columns except for the final output
 		for (int j = 0; j < network[i].size(); j++){ //loop through neurons in column
 			n1 = &(network[i][j]);
-			if (i != 0) n1->sigma = Sigmoid(n1->sigma); //sigmoidify our sigma if were not on the first layer
+			if (i != 0) n1->sigma = Sigmoid(n1->sigma+n1->bias); //sigmoidify our sigma if were not on the first layer
 			for (int k = 0; k < network[i+1].size(); k++){ //set sigmas for next layer
 				n2 = &(network[i+1][k]);
 				n2->sigma += n2->weights[j] * n1->sigma;
@@ -61,7 +61,7 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 	}
 
 	//sigmoidify final output
-	network[network.size()-1][0].sigma = Sigmoid(network[network.size()-1][0].sigma);
+	network[network.size() - 1][0].sigma = Sigmoid(network[network.size() - 1][0].sigma + network[network.size() - 1][0].bias);
 
 	//there should only be a single neuron in the last layer. Its the output
 	double error;
@@ -123,12 +123,14 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	srand(randomSeed);
 
 	for (int i = 0; i < network[0].size(); i++){
+		network[0][i].bias = 0.0f;
 		network[0][i].weights.push_back(0.0); //first layer doesnt even need weights
 	}
 
 	//set up weights for the rest of the layers
 	for (int i = 1; i < network.size(); i++){
 		for (int j = 0; j < network[i].size(); j++){
+			network[i][j].bias = ((rand() % RAND_MAX) / (float)RAND_MAX) * initialRandomBias * 2.0 - initialRandomBias;
 			network[i][j].weights.resize(network[i-1].size());
 			for (int k = 0; k < network[i-1].size(); k++){ //loop through previous layer to make weights
 				network[i][j].weights[k] = ((rand()%RAND_MAX)/(float)RAND_MAX) * initialRandomBias * 2.0 - initialRandomBias;
@@ -209,52 +211,56 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	ofstream testdump("testdump.txt");
 	double error;
 	cout << "Random Seed: " << randomSeed << endl;
-	vector< vector<double> > newData;
+	vector< vector<double> > newData = data;
 	vector< vector<double> > tempData;
-	vector<bool> newTruths;
+	vector<bool> newTruths = truths;
 	vector<bool> tempTruths;
-	for (int q = 0; q < 15; q++){
-		newData = tempData;
-		newTruths = tempTruths;
-		tempData.clear();
-		vector< vector<double> > *currData;
-		vector<bool> *currTruths;
+	for (int q = 0; q < 35; q++){
 
-		if (q == 0 || q == 14) currData = &data;
-		else currData = &newData;
-		if(q == 0 || q==14) currTruths = &truths;
-		else currTruths = &newTruths;
+		//shuffle the inputs
+		while (newData.size()){
+			int r = rand() % newData.size();
+			tempTruths.push_back(newTruths[r]);
+			tempData.push_back(newData[r]);
+			newTruths[r] = newTruths.back();
+			newData[r] = newData.back();
+			newTruths.pop_back();
+			newData.pop_back();
+		}
+		newData.swap(tempData);
+		newTruths.swap(tempTruths);
+		tempData.clear();
+		tempTruths.clear();
 
 		avgError = 0.0;
 		numCorrect = 0;
 		falseCorrect = 0;
 		trueCorrect = 0;
-		for (int i = 0; i < currData->size(); i++){
-			error = feedForward((*currData)[i], (*currTruths)[i]);
-			backProp(error);
+		for (int i = 0; i < newData.size(); i++){
+			error = feedForward(newData[i], newTruths[i]);
+			
+			if (error < 0){
+				backProp(-(error*error));
+			}
+			else{
+				backProp(error*error);
+			}
 
 			avgError += abs(error);
 			if (abs(error) < 0.5){
-				if(rand()%10 == 0) {
-					tempData.push_back((*currData)[i]);
-					tempTruths.push_back((*currTruths)[i]);
-				}
 				numCorrect++;
-				if ((*currTruths)[i]){
+				if (newTruths[i]){
 					trueCorrect++;
 				} else{
 					falseCorrect++;
 				}
-			} else {
-				tempData.push_back((*currData)[i]);
-				tempTruths.push_back((*currTruths)[i]);
 			}
 			//testdump << i << " " << error << "\n";
 			//cout << i << " " << error << "\n";
 		}
-		avgError /= (*currData).size();
+		avgError /= newData.size();
 
-		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, (*currData).size(), falseCorrect, trueCorrect);
+		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, newData.size(), falseCorrect, trueCorrect);
 	}
 	testdump.close();
 }

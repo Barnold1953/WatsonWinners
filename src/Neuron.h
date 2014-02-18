@@ -7,7 +7,7 @@ using namespace std;
 
 struct Neuron{
 	vector<double> weights;
-	double sigma, delta;
+	double sigma, delta, bias;
 };
 
 #endif

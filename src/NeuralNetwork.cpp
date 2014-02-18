@@ -62,9 +62,9 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 	double error;
 	output = network[network.size()-1][0].sigma;
 	if (truth){
-		error = output - 1.0;
+		error = 1.0 - output;
 	}else{
-		error = output;
+		error = 0.0 - output;
 	}
 	
 	return error;

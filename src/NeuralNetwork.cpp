@@ -15,11 +15,15 @@
 //  v  ->*->*->*->*
 //     ->*->*->*->*
 //
+
 double e = 2.7182818284;
-double N = .003;
 
 inline double Sigmoid(double x){
-    return 1.0/(1.0 + exp(-x));
+	return 1.0/(1.0 + exp(-x));
+}
+
+inline double sigDir(double x){
+	return Sigmoid(x)*(1.0 - Sigmoid(x));
 }
 
 double NeuralNetwork::feedForward(vector <double> &data, bool truth)
@@ -32,14 +36,15 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 			network[i][j].sigma = 0.0;
 		}
 	}
-	
+
 	//initialize first layer with input 
-    //First layer should be 1:1 for number of inputs.
-    if (data.size() != network[0].size()){
-        printf("ERROR: There are %d inputs but %d neurons in the first layer\n", data.size(), network[0].size());
+	//First layer should be 1:1 for number of inputs.
+	if (data.size() != network[0].size()){
+		printf("ERROR: There are %d inputs but %d neurons in the first layer\n", data.size(), network[0].size());
 		exit(1);
-    }
-    
+	}
+
+	//TODO: Get rid of the first layer altogether. We can just access the data table instead!
 	for (int i = 0; i < network[0].size(); i++){ 
 		network[0][i].sigma = data[i];
 	}
@@ -54,7 +59,7 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 			}
 		}
 	}
-	
+
 	//sigmoidify final output
 	network[network.size()-1][0].sigma = Sigmoid(network[network.size()-1][0].sigma);
 
@@ -66,7 +71,7 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 	}else{
 		error = 0.0 - output;
 	}
-	
+
 	return error;
 }
 
@@ -77,6 +82,7 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	inFile.open(filename.c_str());
 	if (inFile.fail()){
 		perror(filename.c_str());
+		exit(1);
 	}
 
 	string variableName;
@@ -85,7 +91,7 @@ void NeuralNetwork::initializeNetwork(string filename) {
 
 	bool foundEq = false;
 	while(getline(inFile,line)) { //while the file isn't all read
-        if (line[0] == '#' || line[0] == '[') continue; //ignore comments and sections for now
+		if (line[0] == '#' || line[0] == '[') continue; //ignore comments and sections for now
 		for(int i=0; i < line.size(); i++) {
 			if(line[i] != '=' && foundEq == false) { //get the equal sign
 				continue;
@@ -99,9 +105,9 @@ void NeuralNetwork::initializeNetwork(string filename) {
 				break;
 			}
 		}
-        if (variableName == "l") { //new neuron layer
-            network.push_back(vector <Neuron>());
-            network[network.size()-1].resize(atoi(variableValue.c_str()));
+		if (variableName == "l") { //new neuron layer
+			network.push_back(vector <Neuron>());
+			network[network.size()-1].resize(atoi(variableValue.c_str()));
 		} else if(variableName == "randomSeed") {
 			randomSeed = atoi(variableValue.c_str());
 			if (randomSeed == -1) randomSeed = time(NULL);
@@ -117,7 +123,7 @@ void NeuralNetwork::initializeNetwork(string filename) {
 	srand(randomSeed);
 
 	for (int i = 0; i < network[0].size(); i++){
-		network[0][i].weights.push_back(((rand()%INT_MAX)/(float)INT_MAX) * initialRandomBias);
+		network[0][i].weights.push_back(0.0); //first layer doesnt even need weights
 	}
 
 	//set up weights for the rest of the layers
@@ -125,11 +131,11 @@ void NeuralNetwork::initializeNetwork(string filename) {
 		for (int j = 0; j < network[i].size(); j++){
 			network[i][j].weights.resize(network[i-1].size());
 			for (int k = 0; k < network[i-1].size(); k++){ //loop through previous layer to make weights
-				network[i][j].weights[k] = ((rand()%INT_MAX)/(float)INT_MAX) * initialRandomBias;
+				network[i][j].weights[k] = ((rand()%RAND_MAX)/(float)RAND_MAX) * initialRandomBias * 2.0 - initialRandomBias;
 			}
 		}
 	}
-    
+
 	inFile.close();
 }
 
@@ -163,31 +169,28 @@ void NeuralNetwork::initializeNetwork(vector <int> &neuronsPerLayer, int RandomS
 	}
 }
 
-double sigDir(double x){
-	return Sigmoid(x)*(1.0 - Sigmoid(x));
-}
-
 void NeuralNetwork::backProp(double error){
-    Neuron *n = &network[network.size() - 1][0];
-    
+	Neuron *n = &(network[network.size() - 1][0]);
+
 	//last neuron
-    for (int i = 0; i < n->weights.size(); i++){
-        double sigD = sigDir(n->sigma);
-        n->delta = 2 * sigD * error;
-        n->weights[i] += N * 2 * sigD * error * network[network.size() - 2][i].sigma;
-    } 
+	for (int i = 0; i < n->weights.size(); i++){
+		double sigD = sigDir(n->sigma);
+		n->delta = 2.0 * sigD * error;
+		n->weights[i] += trainingVal * n->delta * network[network.size() - 2][i].sigma;
+	} 
 
-
-    for (int i = network.size() - 2; i > 0; i--){
+	//TODO:? delta can be stored in sigma to save 8 bytes on our neuron struct
+	for (int i = network.size() - 2; i > 0; i--){
 		for (int j = 0; j < network[i].size(); j++){
-			double sigD = sigDir(network[i][j].sigma);
-            double sum = 0;
-            for(int k = 0; k < network[i+1].size(); k++){
-                sum += network[i+1][k].delta * network[i+1][k].weights[j];
-            }
-			network[i][j].delta = sigD * sum;
-			for (int l = 0; l < network[i][j].weights.size(); l++){
-				network[i][j].weights[l] += N * network[i][j].delta * network[i - 1][l].sigma;
+			n = &(network[i][j]);
+			double sigD = sigDir(n->sigma);
+			double sumError = 0;
+			for(int k = 0; k < network[i+1].size(); k++){
+				sumError += network[i+1][k].delta * network[i+1][k].weights[j];
+			}
+			n->delta = sigD * sumError;
+			for (int l = 0; l < n->weights.size(); l++){
+				n->weights[l] += trainingVal * n->delta * network[i - 1][l].sigma;
 				//printf("Node[%d][%d] weight adjusted by %lf\n", i, j, N * network[i][j].delta * network[i - 1][l].sigma);
 			}
 		}
@@ -196,13 +199,62 @@ void NeuralNetwork::backProp(double error){
 
 void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &truths)
 {
-    ofstream testdump("testdump.txt");
+	//*** metrics ***
+	double avgError;
+	int numCorrect;
+	int falseCorrect; //number of FALSE values that turned up correctly
+	int trueCorrect;
+
+	//***   end   ***
+	ofstream testdump("testdump.txt");
 	double error;
-	for (int i = 0; i < data.size(); i++){
-		error = feedForward(data[i], truths[i]);
-        backProp(error);
-        testdump << i << " " << error << "\n";
-		cout << i << " " << error << "\n";
+	cout << "Random Seed: " << randomSeed << endl;
+	vector< vector<double> > newData;
+	vector< vector<double> > tempData;
+	vector<bool> newTruths;
+	vector<bool> tempTruths;
+	for (int q = 0; q < 15; q++){
+		newData = tempData;
+		newTruths = tempTruths;
+		tempData.clear();
+		vector< vector<double> > *currData;
+		vector<bool> *currTruths;
+
+		if (q == 0 || q == 14) currData = &data;
+		else currData = &newData;
+		if(q == 0 || q==14) currTruths = &truths;
+		else currTruths = &newTruths;
+
+		avgError = 0.0;
+		numCorrect = 0;
+		falseCorrect = 0;
+		trueCorrect = 0;
+		for (int i = 0; i < currData->size(); i++){
+			error = feedForward((*currData)[i], (*currTruths)[i]);
+			backProp(error);
+
+			avgError += abs(error);
+			if (abs(error) < 0.5){
+				if(rand()%10 == 0) {
+					tempData.push_back((*currData)[i]);
+					tempTruths.push_back((*currTruths)[i]);
+				}
+				numCorrect++;
+				if ((*currTruths)[i]){
+					trueCorrect++;
+				} else{
+					falseCorrect++;
+				}
+			} else {
+				tempData.push_back((*currData)[i]);
+				tempTruths.push_back((*currTruths)[i]);
+			}
+			//testdump << i << " " << error << "\n";
+			//cout << i << " " << error << "\n";
+		}
+		avgError /= (*currData).size();
+
+		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, (*currData).size(), falseCorrect, trueCorrect);
 	}
-    testdump.close();
+	testdump.close();
 }

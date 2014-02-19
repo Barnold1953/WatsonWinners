@@ -44,7 +44,6 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 		exit(1);
 	}
 
-	//TODO: Get rid of the first layer altogether. We can just access the data table instead!
 	for (int i = 0; i < network[0].size(); i++){ 
 		network[0][i].sigma = data[i];
 	}
@@ -66,6 +65,7 @@ double NeuralNetwork::feedForward(vector <double> &data, bool truth)
 	//there should only be a single neuron in the last layer. Its the output
 	double error;
 	output = network[network.size()-1][0].sigma;
+	
 	if (truth){
 		error = 1.0 - output;
 	}else{
@@ -174,23 +174,26 @@ void NeuralNetwork::initializeNetwork(vector <int> &neuronsPerLayer, int RandomS
 void NeuralNetwork::backProp(double error){
 	Neuron *n = &(network[network.size() - 1][0]);
 
-	//last neuron
+	//Compute back prop for output layer
+	double sigD = sigDir(n->sigma);
 	for (int i = 0; i < n->weights.size(); i++){
-		double sigD = sigDir(n->sigma);
 		n->delta = 2.0 * sigD * error;
 		n->weights[i] += trainingVal * n->delta * network[network.size() - 2][i].sigma;
 	} 
 
-	//TODO:? delta can be stored in sigma to save 8 bytes on our neuron struct
-	for (int i = network.size() - 2; i > 0; i--){
-		for (int j = 0; j < network[i].size(); j++){
+	//Hidden layer backpropagation
+	for (int i = network.size() - 2; i > 0; i--){ //loop through each layer
+		for (int j = 0; j < network[i].size(); j++){ //loop through neurons in this layer
 			n = &(network[i][j]);
-			double sigD = sigDir(n->sigma);
+			sigD = sigDir(n->sigma);
 			double sumError = 0;
+			//loop through the weights in the next layer and calculate sumError
 			for(int k = 0; k < network[i+1].size(); k++){
 				sumError += network[i+1][k].delta * network[i+1][k].weights[j];
 			}
+			//calculate delta for this neuron
 			n->delta = sigD * sumError;
+			//train the weights for this neuron using delta
 			for (int l = 0; l < n->weights.size(); l++){
 				n->weights[l] += trainingVal * n->delta * network[i - 1][l].sigma;
 				//printf("Node[%d][%d] weight adjusted by %lf\n", i, j, N * network[i][j].delta * network[i - 1][l].sigma);
@@ -245,7 +248,6 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 			else{
 				backProp(error*error);
 			}
-
 			avgError += abs(error);
 			if (abs(error) < 0.5){
 				numCorrect++;

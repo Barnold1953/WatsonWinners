@@ -211,14 +211,14 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	int trueCorrect;
 
 	//***   end   ***
-	ofstream testdump("testdump.txt");
+	ofstream testdump("input.txt");
 	double error;
 	cout << "Random Seed: " << randomSeed << endl;
 	vector< vector<double> > newData = data;
 	vector< vector<double> > tempData;
 	vector<bool> newTruths = truths;
 	vector<bool> tempTruths;
-	for (int q = 0; q < 3500; q++){
+	for (int q = 0; q < 1000; q++){
 
 		//shuffle the inputs
 		while (newData.size()){
@@ -263,6 +263,7 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 			//cout << i << " " << error << "\n";
 		}
 		avgError /= newData.size();
+		testdump << avgError << endl;
 
 		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, newData.size(), falseCorrect, trueCorrect);
 	}

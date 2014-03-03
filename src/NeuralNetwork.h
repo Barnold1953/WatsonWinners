@@ -12,10 +12,10 @@ public:
 	double feedForward(vector <double> &data, bool truth);
 	void trainNet(vector <vector <double> > &data, vector <bool> &truths);
 	void backProp(double error);
+	vector < vector <Neuron> > network; 
 private:
 	int layers;
 	int randomSeed;
 	double trainingVal;
 	double initialRandomBias;
-	vector < vector <Neuron> > network; //treat as a 2D array
 };

@@ -218,7 +218,7 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	vector< vector<double> > tempData;
 	vector<bool> newTruths = truths;
 	vector<bool> tempTruths;
-	for (int q = 0; q < 35; q++){
+	for (int q = 0; q < 3500; q++){
 
 		//shuffle the inputs
 		while (newData.size()){
@@ -242,12 +242,6 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 		for (int i = 0; i < newData.size(); i++){
 			error = feedForward(newData[i], newTruths[i]);
 			
-			if (error < 0){
-				backProp(-(error*error));
-			}
-			else{
-				backProp(error*error);
-			}
 			avgError += abs(error);
 			if (abs(error) < 0.5){
 				numCorrect++;
@@ -255,6 +249,14 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 					trueCorrect++;
 				} else{
 					falseCorrect++;
+				}
+			}
+			else{
+				if(error < 0){
+					backProp(-(error*error));
+				}
+				else{
+					backProp(error*error);
 				}
 			}
 			//testdump << i << " " << error << "\n";

@@ -39,11 +39,13 @@ void SingleExecution(char **argv)
 	vector <bool> truths;
 
     NeuralNetwork neuralNetwork;
-    neuralNetwork.initializeNetwork(networkFileName);
 	if (isTrain){
 		if (csvParser.loadTrainingCSV(dataFileName, dataTable, truths)){
 			return; //error
 		}else{
+			neuralNetwork.network.push_back(vector <Neuron>());
+			neuralNetwork.network[neuralNetwork.network.size() - 1].resize(dataTable[0].size());
+			neuralNetwork.initializeNetwork(networkFileName);
             neuralNetwork.trainNet(dataTable, truths);
 		}
 	}else{

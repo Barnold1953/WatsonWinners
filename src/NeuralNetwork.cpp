@@ -211,14 +211,14 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	int trueCorrect;
 
 	//***   end   ***
-	ofstream testdump("testdump.txt");
+	ofstream testdump("input.txt");
 	double error;
 	cout << "Random Seed: " << randomSeed << endl;
 	vector< vector<double> > newData = data;
 	vector< vector<double> > tempData;
 	vector<bool> newTruths = truths;
 	vector<bool> tempTruths;
-	for (int q = 0; q < 35; q++){
+	for (int q = 0; q < 1000; q++){
 
 		//shuffle the inputs
 		while (newData.size()){
@@ -242,12 +242,6 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 		for (int i = 0; i < newData.size(); i++){
 			error = feedForward(newData[i], newTruths[i]);
 			
-			if (error < 0){
-				backProp(-(error*error));
-			}
-			else{
-				backProp(error*error);
-			}
 			avgError += abs(error);
 			if (abs(error) < 0.5){
 				numCorrect++;
@@ -257,10 +251,19 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 					falseCorrect++;
 				}
 			}
+			else{
+				if(error < 0){
+					backProp(-(error*error));
+				}
+				else{
+					backProp(error*error);
+				}
+			}
 			//testdump << i << " " << error << "\n";
 			//cout << i << " " << error << "\n";
 		}
 		avgError /= newData.size();
+		testdump << avgError << endl;
 
 		printf("Epoch %2d: avgError: %1.4lf Correct: %4d / %d fCorrect: %d tCorrect: %d\n", q, avgError, numCorrect, newData.size(), falseCorrect, trueCorrect);
 	}

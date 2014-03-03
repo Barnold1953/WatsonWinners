@@ -68,6 +68,52 @@ CSVParser::CSVParser(){
 	
 }
 
+void PreprocessData(vector<vector<double> > &dataTable)
+{
+	//loop through columns
+	int size = dataTable[0].size();
+	vector <bool> useColumn;
+	vector <double> mins, maxs;
+	useColumn.resize(size, 0);
+	mins.resize(size, 99999999);
+	maxs.resize(size, -99999999);
+
+	double val = 0;
+	for (int j = 0; j < dataTable[0].size(); j++){
+		for (int i = 0; i < dataTable.size(); i++){
+			if (i == 0){
+				val = dataTable[i][j];
+			}else{
+				if (val != dataTable[i][j]){
+					useColumn[j] = 1;
+				}
+			}
+			//get mins and maxs
+			if (dataTable[i][j] < mins[j]) mins[j] = dataTable[i][j];
+			if (dataTable[i][j] > maxs[j]) maxs[j] = dataTable[i][j];
+		}
+	}
+
+	vector <vector <double> > newDataTable;
+	newDataTable.resize(dataTable.size(), vector <double>());
+
+	for (int i = 0; i < useColumn.size(); i++){
+		if (useColumn[i]){
+			for (int j = 0; j < dataTable.size(); j++){ //construct new table
+				val = dataTable[j][i];
+				//normalize
+				if (maxs[i] - mins[i] == 0) cin.get();
+				val = (val - mins[i]) / (maxs[i] - mins[i]);
+			//	cout << val << "\n";
+			//	cin.get();
+				newDataTable[j].push_back(val);
+			}
+		}
+	}
+
+	dataTable = newDataTable;//copy it over
+}
+
 int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTable, vector<bool> &truthTable){
 	ifstream inFile;
 	string lineBuffer;
@@ -99,6 +145,9 @@ int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTab
 				if (sscanf(&(lineBuffer[prev]), "%lf", &val) < 1){
 					cerr << "sscanf failed\n";
 				}
+				if (val > 1){
+					val = val / 900000.0 + 1.0;
+				}
 				dataTable.back().push_back(val);
 
 				prev = i+1;
@@ -107,146 +156,22 @@ int CSVParser::loadTrainingCSV(string filename, vector<vector<double> > &dataTab
 
 		if (strcmp(&(lineBuffer[prev]), "true") == 0){
 			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
-			dataTable.push_back(dataTable.back());
-			truthTable.push_back(1);
 		}else if (strcmp(&(lineBuffer[prev]), "false") == 0){
 			truthTable.push_back(0);
 		}
 	}
+
+	PreprocessData(dataTable);
+
+	ofstream dumpfile("pretest.txt");
+	for (int i = 0; i < dataTable.size(); i++){
+		dumpfile << i << " ";
+		for (int j = 0; j < dataTable[i].size(); j++){
+			dumpfile << dataTable[i][j] << " ";
+		}
+		dumpfile << "\n";
+	}
+	dumpfile.close();
 
 	inFile.close();
 	return 0;

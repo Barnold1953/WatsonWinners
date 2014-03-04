@@ -218,7 +218,7 @@ void NeuralNetwork::trainNet(vector <vector <double> > &data, vector <bool> &tru
 	vector< vector<double> > tempData;
 	vector<bool> newTruths = truths;
 	vector<bool> tempTruths;
-	for (int q = 0; q < 1000; q++){
+	for (int q = 0; q < 10; q++){
 
 		//shuffle the inputs
 		while (newData.size()){
